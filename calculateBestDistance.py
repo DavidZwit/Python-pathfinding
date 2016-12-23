@@ -17,7 +17,7 @@ def bestPath(paths, targetPos, cicle, bestPath, log):
         pathCopy[i] = distance
 
         if (log) : print('current path', currPath[len(currPath)-1].x, currPath[ len( currPath ) -1 ].y , i)
-            
+
         if (log) : print('path distance', distance, '\n')
 
     #for the guy who won the race!
@@ -30,16 +30,16 @@ def bestPath(paths, targetPos, cicle, bestPath, log):
 
     #for i in theBestPath :
         #if (log) : print('x:', i.x, 'y:', i.y)
-    
+
     if (log) : print('\n')
     if (log) : print('and the winner is is ::: ', winner )
     if (log) : print(winner, " 's winner distance is ::: ", winnerScore )
-    
+
     if (winnerScore > lastWinnerScore) :
         if (log) : print('congrats ', winner , ' !!!')
         return winner
-    else : 
-        return 0 
+    else :
+        return 0
         print (' to bad, the last score was better :( ')
 
     lastWinnerScore = winnerScore

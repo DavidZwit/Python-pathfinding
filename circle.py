@@ -21,13 +21,13 @@ draggingObj = 0
 
 
 '''The frames skipped before the positions of the players are saved'''
-frameSkipPositionSave = 5  
+frameSkipPositionSave = 3
 
 '''How much the circles will randomly move'''
-randomFactor = 90  
+randomFactor = 70
 
-'''The amound of players that will be participating'''  
-amoundOfPlayers = 20 
+'''The amound of players that will be participating'''
+amoundOfPlayers = 20
 
 #counters and such
 '''The final target position that should be reached'''
@@ -60,14 +60,14 @@ def reset() :
     tempPath = calculateBestDistance.bestPath(paths, targetPos, cicleCounter, bestPath, True)
     obj[tempPath].followBehavour /= 4
 
-    if not (tempPath is int): 
+    if not (tempPath is int):
         bestPath = []
 
         #beste positiie werkt net!!!
-            
+
         bestPath = paths[tempPath]
 
- 
+
     for i in obj:
         obj[i].reset()
 
@@ -76,22 +76,23 @@ def drawPath(c) :
     '''Drawing last optimal path'''
     global bestPath
     global targetPos
+    global frameCounter
     #Drawing the target position
     c.create_arc(targetPos.x-10, targetPos.y-10 ,targetPos.x+10, targetPos.y + 10, start=0, extent=359.99, fill='red')
-    
+
     #print(frameCounter)
     #drawing the dot on the best position from last round
     try :
         currBestPath = bestPath[frameCounter]
         c.create_arc(currBestPath.x - 5, currBestPath.y - 5, currBestPath.x + 5, currBestPath.y +5, start=0, extent=359.99, fill='red')
-    except : 
+    except :
         pass
 
-    for i in range (0, len(bestPath)-1): 
-        #drawing a dot at each new line drawn  
+    for i in range (0, len(bestPath)-1):
+        #drawing a dot at each new line drawn
         c.create_arc(int(bestPath[i].x)-1.5, int(bestPath[i].y)-1.5,int(bestPath[i].x)+1.5, int(bestPath[i].y) + 1.5, start=0, extent=359.99, fill='red')
         #drawing the last best path
-        c.create_line(int(bestPath[i].x), int(bestPath[i].y), int(bestPath[i+1].x), int(bestPath[i+1].y), fill='black') 
+        c.create_line(int(bestPath[i].x), int(bestPath[i].y), int(bestPath[i+1].x), int(bestPath[i+1].y), fill='black')
 
 
 
@@ -132,7 +133,7 @@ def Update():
     global startInput
 
     global currentRectangle
-    global rectangleCount 
+    global rectangleCount
 
     if (clicking) :
         stoppedInput = False
@@ -141,18 +142,18 @@ def Update():
             startInput = True
             if (collisions.circleToPoint( mousePos, targetPos, 20 ) ) :
                 targetPos = mousePos
-            else : 
+            else :
                 obj['rect' + str(rectangleCount)] = graphicalShapes.rectangle(Vector2.new(mousePos.x, mousePos.y), Vector2.new())
                 currentRectangle = obj['rect' + str(rectangleCount)]
                 rectangleCount += 1
 
-        if not (type(currentRectangle) is int ) : 
+        if not (type(currentRectangle) is int ) :
             currentRectangle.size = Vector2.new(
-            mousePos.x - currentRectangle.position.x, 
-            mousePos.y - currentRectangle.position.y) 
+            mousePos.x - currentRectangle.position.x,
+            mousePos.y - currentRectangle.position.y)
 
     #first time stopping with clicking
-    elif not (stoppedInput) : 
+    elif not (stoppedInput) :
         stoppedInput = True
         startInput = False
         currentRectangle = 0
@@ -161,7 +162,7 @@ def Update():
 
     for i in obj:
         if ('rect' in i) :
-            if (collisions.rectanglePoint(obj[i], mousePos)) : 
+            if (collisions.rectanglePoint(obj[i], mousePos)) :
                 #print('mouse in ', i)
                 pass
 
@@ -169,21 +170,19 @@ def Update():
     if (pathCounter >= frameSkipPositionSave):
         #every time the the path can be saved a frame is added
         frameCounter+=1
-        print('adding frame ', frameCounter)
         pathCounter = 0
-        
 
-        ###check if a circle is colliding with a rectangle
+
+    #check if a circle is colliding with a rectangle
     for i in obj :
         if ('rect' in i) :
             for x in obj :
                 if ('guy' in x) :
                     if (collisions.rectanglePoint( obj[i], obj[x].position )) :
                         obj[x].shouldStop = True
-                        pass
 
     pathCounter = pathCounter + 1
-    
+
 
 class path :
     '''create a object that will ceep track of what path you took'''
@@ -196,7 +195,7 @@ class path :
     def addPos(self, pos) :
         '''Ad a position to the traveled path'''
         global paths
-        
+
         #gets the array for this path and adds the new position
         paths[ self.name ].append( Vector2.new(pos.x, pos.y) )
 
@@ -208,7 +207,7 @@ class path :
         #reseting own position array
         paths[self.name] = []
         paths[self.name] = [self.startPos]
-        
+
 
 
 class searcher (graphicalShapes.arrow):
@@ -232,7 +231,7 @@ class searcher (graphicalShapes.arrow):
         super().draw(c)
         if (pathCounter >= frameSkipPositionSave) :
             c.create_line(self.position.x, self.position.y, self.target.x, self.target.y, fill='black')
-        
+
 
     def update(self):
         '''update the guy'''
@@ -241,20 +240,20 @@ class searcher (graphicalShapes.arrow):
         global pathCounter
         global frameSkipPositionSave
 
+        global frameCounter
+
         #if i should create a new position do that!
         if (pathCounter >= frameSkipPositionSave):
-            if not (self.shouldStop) :
-            
+            if not (self.shouldStop == True) :
                 #setting the random velocity
                 self.velocity.rand(randomFactor, randomFactor)
 
                 #if there is a 'best last round point' for this frame
                 if (len(bestPath) -1 > frameCounter) :
                     currBestPath = bestPath[frameCounter]
-
                     #calculating the distance from the desired point divided by how much it unvluences it
                     velocityOffset = Vector2.new(
-                        int((currBestPath.x - self.position.x) / self.followBehavour), 
+                        int((currBestPath.x - self.position.x) / self.followBehavour),
                         int((currBestPath.y - self.position.y) / self.followBehavour)
                     )
 
@@ -262,22 +261,26 @@ class searcher (graphicalShapes.arrow):
                     self.target.x += velocityOffset.x
                     self.target.y += velocityOffset.y
 
+                    #adding this step to the position array
+
                 #aplying the velocity to the position
                 self.target.x += self.velocity.x
                 self.target.y += self.velocity.y
 
-                #adding this step to the position array
-            else : 
-                self.target.x = 0
-                self.target.y = 0
+            else :
+                self.target.x - self.position.x
+                self.target.y = self.position.y
 
-        self.path.addPos(self.target)
-        self.position.x += (self.target.x - self.position.x)/20
-        self.position.y += (self.target.y - self.position.y)/20
-    
+            self.path.addPos(self.position)
+
+        if not (self.shouldStop) :
+            self.position.x += (self.target.x - self.position.x)/20
+            self.position.y += (self.target.y - self.position.y)/20
+
+
     def reset(self):
         '''reset it's value's and path'''
-        #executing the reset function in the paths 
+        #executing the reset function in the paths
         self.path.newCycle()
         #setting position to start pos
         self.position.x = self.path.startPos.x
